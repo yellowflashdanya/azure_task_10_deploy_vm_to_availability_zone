@@ -33,29 +33,25 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 # and set same zone you would set on the VM, but this is not required in this task.
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--Image $vmImage `
--Size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName `
--Zone @("1")
+
+for ($zone = 1; $zone -le 2; $zone++) {
+  $currentVmName = "$vmName-$zone"
+
+  Write-Host "Creating VM $currentVmName in Zone $zone..."
+
+  New-AzVM `
+  -ResourceGroupName $resourceGroupName `
+  -Name $currentVmName `
+  -Location $location `
+  -Image $vmImage `
+  -Size $vmSize `
+  -SubnetName $subnetName `
+  -VirtualNetworkName $virtualNetworkName `
+  -SecurityGroupName $networkSecurityGroupName `
+  -SshKeyName $sshKeyName `
+  -Zone $zone
 # -PublicIpAddressName $publicIpAddressName
 
-New-AzVM `
--ResourceGroupName $resourceGroupName `
--Name "${vmName}-2" `
--Location $location `
--Image $vmImage `
--Size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName `
--Zone @("2")
+}
 
 Write-Host "Deployment completed successfully!"
